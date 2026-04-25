@@ -26,3 +26,7 @@ NOW_pistachio <- rbind(males_2013[which(males_2013$Crop == "Pistachio"), ],
 
 plot(NOW_almond$NOW_DD, NOW_almond$moths)
 points(NOW_pistachio$NOW_DD, NOW_pistachio$moths, col = "red")
+
+
+plot(NOW_almond$NOW_DD, NOW_almond$pmoths)
+points(NOW_pistachio$NOW_DD, NOW_pistachio$pmoths, col = "red")
