@@ -1,3 +1,8 @@
+library(readr)
+locations_NOW <- read_csv("data/locationsNOW.csv")
+males_2011 <- read_csv("data/males_2011.csv")
+males_2011$Males <- as.numeric(males_2011$Males)
+
 males_2011$Date <- as.Date(males_2011$Date, format = "%m/%d/%Y")
 males_2011$julian <- as.numeric(format(males_2011$Date, "%j"))
 
@@ -82,6 +87,8 @@ for(i in 1: length(locs_NOW2011$loc)) {
 
 # 4. Calculate cumulative degree days using max and min temps obtained by Vince
 
+source("aux_functions.R")
+
 upT <- 12.8 + 19.8
 baseT <- 12.8
 
@@ -140,3 +147,6 @@ for(i in 1: length(locs_NOW2011$loc)) {
 
 
 plot(males_2011$NOW_DD, males_2011$cpmoths)
+
+
+save(males_2011, file = "males2011.RData")

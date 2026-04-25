@@ -148,7 +148,7 @@ for(i in 1: length(locs_NOW2010$loc)) {
 plot(males_2010$NOW_DD, males_2010$cpmoths)
 
 
-
+save(males_2010, file = "males2010.RData")
 
 
 
