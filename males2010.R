@@ -1,3 +1,7 @@
+library(readr)
+locationsNOW <- read_csv("data/locationsNOW.csv")
+males_2010 <- read_csv("data/males_2010.csv")
+
 males_2010$Date <- as.Date(males_2010$Date, format = "%m/%d/%Y")
 males_2010$julian <- as.numeric(format(males_2010$Date, "%j"))
 
