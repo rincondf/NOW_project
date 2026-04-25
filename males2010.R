@@ -1,5 +1,5 @@
 library(readr)
-locationsNOW <- read_csv("data/locationsNOW.csv")
+locations_NOW <- read_csv("data/locationsNOW.csv")
 males_2010 <- read_csv("data/males_2010.csv")
 
 males_2010$Date <- as.Date(males_2010$Date, format = "%m/%d/%Y")
@@ -85,6 +85,8 @@ for(i in 1: length(locs_NOW2010$loc)) {
 }
 
 # 4. Calculate cumulative degree days using max and min temps obtained by Vince
+
+source("aux_functions.R")
 
 upT <- 12.8 + 19.8
 baseT <- 12.8
