@@ -1,6 +1,8 @@
 load("males2013.RData")
 load("males2014.RData")
 
+tapply(males_2013$pmoths, males_2013$loc, sum)
+
 plot(males_2013$NOW_DD[which(males_2013$Crop == "Almond")], 
      males_2013$moths[which(males_2013$Crop == "Almond")])
 
@@ -17,12 +19,12 @@ points(males_2014$NOW_DD[which(males_2014$Crop == "Pistachio")],
 
 NOW_almond <- rbind(males_2013[which(males_2013$Crop == "Almond"), ], 
                     males_2014[which(males_2014$Crop == "Almond"), ])
-
+rownames(NOW_almond) <- seq(1, length(NOW_almond$Date))
 
 NOW_pistachio <- rbind(males_2013[which(males_2013$Crop == "Pistachio"), ], 
                     males_2014[which(males_2014$Crop == "Pistachio"), ])
 
-
+rownames(NOW_pistachio) <- seq(1, length(NOW_pistachio$Date))
 
 plot(NOW_almond$NOW_DD, NOW_almond$moths)
 points(NOW_pistachio$NOW_DD, NOW_pistachio$moths, col = "red")
@@ -32,38 +34,32 @@ plot(NOW_almond$NOW_DD, NOW_almond$pmoths)
 points(NOW_pistachio$NOW_DD, NOW_pistachio$pmoths, col = "red")
 
 
+plot(NOW_almond$NOW_DD, NOW_almond$cpmoths)
+points(NOW_pistachio$NOW_DD, NOW_pistachio$cpmoths, col = "red")
+
+
 
 # Almonds
+
+bad_almonds <- unique(NOW_almond$loc[which(NOW_almond$cpmoths > 0.70 & NOW_almond$NOW_DD < 540)])
+NOW_almond <- NOW_almond[-which(NOW_almond$loc %in% bad_almonds), ]
+
 
 AlmondsDDs <- rep(NOW_almond$NOW_DD, round(NOW_almond$pmoths*1000))
 
 hist(AlmondsDDs, breaks = seq(0, 2100, 15))
 
+plot(NOW_almond$NOW_DD, NOW_almond$pmoths)
+plot(NOW_almond$NOW_DD, NOW_almond$cpmoths)
 
 library(mixtools)
 
-Alm_mix <- weibullRMM_SEM(AlmondsDDs, maxit = 500, k = 4)
+Alm_mix1 <- gammamixEM(AlmondsDDs, maxit = 2000, k = 4)
 
-
-Alm_mix1 <- gammamixEM(AlmondsDDs, maxit = 500, k = 4)
-
-Alm_mix2 <- normalmixEM(AlmondsDDs, maxit = 500, k = 4)
+Alm_mix2 <- normalmixEM(AlmondsDDs, maxit = 2000, k = 4)
 
 
 
-
-hist(AlmondsDDs, breaks = seq(0, 2100, 15), freq = FALSE)
-lines(seq(0, 2100, 0.01), dweibull(seq(0, 2100, 0.01), shape = Alm_mix$shape[1],
-                                 scale = Alm_mix$scale[1]), lwd = 2)
-
-lines(seq(0, 2100, 0.01), dweibull(seq(0, 2100, 0.01), shape = Alm_mix$shape[2],
-                                    scale = Alm_mix$scale[2]), lwd = 2)
-
-lines(seq(0, 2100, 0.01), dweibull(seq(0, 2100, 0.01), shape = Alm_mix$shape[3],
-                                   scale = Alm_mix$scale[3]), lwd = 2)
-
-lines(seq(0, 2100, 0.01), dweibull(seq(0, 2100, 0.01), shape = Alm_mix$shape[4],
-                                   scale = Alm_mix$scale[4]), lwd = 2)
 
 hist(AlmondsDDs, breaks = seq(0, 2100, 15), freq = FALSE)
 lines(seq(0, 2000, 0.01), dgamma(seq(0, 2000, 0.01), shape = Alm_mix1$gamma.pars[1, 1],
@@ -94,7 +90,7 @@ lines(seq(0, 2000, 0.01), dnorm(seq(0, 2000, 0.01), mean = Alm_mix2$mu[3],
 lines(seq(0, 2000, 0.01), dnorm(seq(0, 2000, 0.01), mean = Alm_mix2$mu[4],
                                 sd = Alm_mix2$sigma[4])/2, lwd = 2)
 
-hist(AlmondsDDs, breaks = seq(0, 2100, 15), freq = FALSE, ylim = c(0, 0.01))
+hist(AlmondsDDs, breaks = seq(0, 2100, 15), freq = FALSE, ylim = c(0, 0.004))
 
 AlmondsDDs1 <- AlmondsDDs[order(AlmondsDDs)]
 hist(AlmondsDDs1[1: round(length(AlmondsDDs1) * Alm_mix2$lambda[1])], 
@@ -129,7 +125,7 @@ hist(AlmondsDDs1[round(length(AlmondsDDs1) * Alm_mix2$lambda[1]) +
 AlmondsDDs1D <- AlmondsDDs1[round(length(AlmondsDDs1) * Alm_mix2$lambda[1]) + 
                               round(length(AlmondsDDs1) * Alm_mix2$lambda[2]) + 
                               round(length(AlmondsDDs1) * Alm_mix2$lambda[3]) + 1: 
-                              round(length(AlmondsDDs1) * Alm_mix2$lambda[4])]
+                              round(length(AlmondsDDs1) * Alm_mix2$lambda[4]) - 1]
 
 
 
@@ -159,11 +155,11 @@ summary(mod_Alm4)
 
 plot(NOW_almond$NOW_DD, NOW_almond$pmoths)
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Alm1)[1],
-                                 scale = coef(mod_Alm1)[2])*40, lwd = 2)
+                                 scale = coef(mod_Alm1)[2])*20, lwd = 2)
 
 
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Alm2)[1],
-                                   scale = coef(mod_Alm2)[2])*20, lwd = 2)
+                                   scale = coef(mod_Alm2)[2])*10, lwd = 2)
 
 
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Alm3)[1],
@@ -178,9 +174,23 @@ lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Alm4)[1]
 
 # Pistachios
 
-PistachiosDDs <- rep(NOW_pistachio$NOW_DD, round(NOW_pistachio$pmoths*1000))
+bad_pistachios <- unique(NOW_pistachio$loc[which(NOW_pistachio$cpmoths > 0.70 & NOW_pistachio$NOW_DD < 540)])
+NOW_pistachio <- NOW_pistachio[-which(NOW_pistachio$loc %in% bad_pistachios), ]
 
-hist(PistachiosDDs, breaks = seq(0, 2100, 15))
+
+
+
+PistachiosDDs <- rep(NOW_pistachio$NOW_DD, round(NOW_pistachio$pmoths*10000))
+
+hist(PistachiosDDs, breaks = seq(0, 2100, 20))
+
+plot(NOW_pistachio$NOW_DD, NOW_pistachio$pmoths, ylim = c(0, 0.25))
+
+plot(NOW_pistachio$NOW_DD, NOW_pistachio$cpmoths)
+
+
+
+
 
 
 library(mixtools)
@@ -188,9 +198,25 @@ library(mixtools)
 Pis_mix <- weibullRMM_SEM(PistachiosDDs, maxit = 500, k = 4)
 
 
-Pis_mix1 <- gammamixEM(PistachiosDDs, maxit = 500, k = 4)
+Pis_mix1 <- gammamixEM(PistachiosDDs, lambda = Alm_mix2$lambda, k = 4, maxit = 2000)
 
-Pis_mix2 <- normalmixEM(PistachiosDDs, maxit = 500, lambda = Alm_mix2$lambda, k = 4)
+Pis_mix2 <- normalmixEM(PistachiosDDs, maxit = 2500, mu = Alm_mix2$mu, sigma = Alm_mix2$sigma, sd.constr = rep(mean(Alm_mix2$sigma), 4))
+
+
+
+
+hist(PistachiosDDs, breaks = seq(0, 2100, 15), freq = FALSE)
+lines(seq(0, 2000, 0.01), dgamma(seq(0, 2000, 0.01), shape = Pis_mix1$gamma.pars[1, 1],
+                                 scale = Pis_mix1$gamma.pars[2, 1])/2, lwd = 2)
+
+lines(seq(0, 2000, 0.01), dgamma(seq(0, 2000, 0.01), shape = Pis_mix1$gamma.pars[1, 2],
+                                 scale = Pis_mix1$gamma.pars[2, 2])/2)
+
+lines(seq(0, 2000, 0.01), dgamma(seq(0, 2000, 0.01), shape = Pis_mix1$gamma.pars[1, 3],
+                                 scale = Pis_mix1$gamma.pars[2, 3])/2, lwd = 2)
+
+lines(seq(0, 2000, 0.01), dgamma(seq(0, 2000, 0.01), shape = Pis_mix1$gamma.pars[1, 4],
+                                 scale = Pis_mix1$gamma.pars[2, 4])/2)
 
 
 
@@ -209,7 +235,9 @@ lines(seq(0, 2000, 0.01), dnorm(seq(0, 2000, 0.01), mean = Pis_mix2$mu[3],
 lines(seq(0, 2000, 0.01), dnorm(seq(0, 2000, 0.01), mean = Pis_mix2$mu[4],
                                 sd = Pis_mix2$sigma[4])/2, lwd = 2)
 
-hist(PistachiosDDs, breaks = seq(0, 2100, 15), freq = FALSE, ylim = c(0, 0.01))
+
+
+hist(PistachiosDDs, breaks = seq(0, 2100, 15), freq = FALSE, ylim = c(0, 0.005))
 
 PistachiosDDs1 <- PistachiosDDs[order(PistachiosDDs)]
 hist(PistachiosDDs1[1: round(length(PistachiosDDs1) * Pis_mix2$lambda[1])], 
@@ -291,10 +319,59 @@ lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Pis4)[1]
 
 
 
+#####################
+
+almonds_mod <- function(x) {
+  
+  (1/4) * (pweibull(x, shape = coef(mod_Alm1)[1],
+                    scale = coef(mod_Alm1)[2]) + 
+             pweibull(x, shape = coef(mod_Alm2)[1],
+                      scale = coef(mod_Alm2)[2]) +
+             pweibull(x, shape = coef(mod_Alm3)[1],
+                      scale = coef(mod_Alm3)[2]) +
+             pweibull(x, shape = coef(mod_Alm4)[1],
+                      scale = coef(mod_Alm4)[2]))
+}
+
+
+plot(NOW_almond$NOW_DD, NOW_almond$cpmoths)
+
+lines(seq(0, 2100), (almonds_mod(seq(0, 2100))))
+
+
+pistachios_mod <- function(x) {
+  
+  (1/4) * (pweibull(x, shape = coef(mod_Pis1)[1],
+                    scale = coef(mod_Pis1)[2]) + 
+             pweibull(x, shape = coef(mod_Pis2)[1],
+                      scale = coef(mod_Pis2)[2]) +
+             pweibull(x, shape = coef(mod_Pis3)[1],
+                      scale = coef(mod_Pis3)[2]) +
+             pweibull(x, shape = coef(mod_Pis4)[1],
+                      scale = coef(mod_Pis4)[2]))
+}
+
+
+plot(NOW_pistachio$NOW_DD, NOW_pistachio$cpmoths)
+
+lines(seq(0, 2100), (pistachios_mod(seq(0, 2100))))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 plot(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Pis1)[1],
-                                   scale = coef(mod_Pis1)[2])*20, lwd = 2, type = "l", lty = 2)
+                                   scale = coef(mod_Pis1)[2])*25, lwd = 2, type = "l", lty = 2, ylim = c(0, 0.15))
 
 
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Pis2)[1],
@@ -311,15 +388,15 @@ lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Pis4)[1]
 
 
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Alm1)[1],
-                                   scale = coef(mod_Alm1)[2])*40, lwd = 2)
+                                   scale = coef(mod_Alm1)[2])*20, lwd = 2)
 
 
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Alm2)[1],
-                                   scale = coef(mod_Alm2)[2])*20, lwd = 2)
+                                   scale = coef(mod_Alm2)[2])*18, lwd = 2)
 
 
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Alm3)[1],
-                                   scale = coef(mod_Alm3)[2])*40, lwd = 2)
+                                   scale = coef(mod_Alm3)[2])*36, lwd = 2)
 
 
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Alm4)[1],
@@ -330,21 +407,21 @@ lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Alm4)[1]
 
 
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = 3.122675,
-                                   scale = 328.0322), lwd = 2, col = "blue")
+                                   scale = 328.0322) * 19.5, lwd = 2, col = "blue")
 
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = 2.318188,
-                                   scale = 260.0913), lwd = 2, col = "blue", lty = 2)
+                                   scale = 260.0913) * 19.5, lwd = 2, col = "blue", lty = 2)
 
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = 6.676009,
-                                   scale = 858.6814), lwd = 2, col = "blue")
+                                   scale = 858.6814) * 23, lwd = 2, col = "blue")
 
 
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = 13.22359,
-                                   scale = 1362.8031)*40, lwd = 2, col = "blue")
+                                   scale = 1362.8031) * 40, lwd = 2, col = "blue")
 
 
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = 17.11678,
-                                   scale = 1766.1618)*40, lwd = 2, col = "blue")
+                                   scale = 1766.1618) * 29, lwd = 2, col = "blue")
 
 
 
