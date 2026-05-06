@@ -153,6 +153,21 @@ mod_Alm4 <- mle2(MLL_Alm1, start = list(shape = 17, scale  = 1700),
 summary(mod_Alm4)
 
 
+hist(AlmondsDDs1A, freq = FALSE, xlim = c(0, 2100))
+lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Alm1)[1],
+                                   scale = coef(mod_Alm1)[2]), lwd = 2)
+
+
+hist(AlmondsDDs1B, freq = FALSE, add = TRUE)
+lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Alm2)[1],
+                                   scale = coef(mod_Alm2)[2]), lwd = 2)
+
+
+
+
+
+
+
 plot(NOW_almond$NOW_DD, NOW_almond$pmoths)
 lines(seq(0, 2000, 0.01), dweibull(seq(0, 2000, 0.01), shape = coef(mod_Alm1)[1],
                                  scale = coef(mod_Alm1)[2])*20, lwd = 2)
